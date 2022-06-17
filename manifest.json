@@ -6,7 +6,12 @@
     "content_scripts": [
         {
           "matches": ["https://git.lucidutil.com/dashboard"],
-          "js": ["after.js"],
+          "js": ["shared.js", "dashboard.js", "inbox.js"],
+          "run_at": "document_end"
+        },
+        {
+          "matches": ["https://git.lucidutil.com/projects/*/repos/*/pull-requests/*"],
+          "js": ["shared.js", "inbox.js"],
           "run_at": "document_end"
         }
     ]
