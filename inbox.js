@@ -6,21 +6,24 @@ const alreadyOpenDialog = document.querySelector('#inline-dialog-inbox-pull-requ
 
 function onMouseEnter() {
     inboxMenu.removeEventListener('mouseenter', onMouseEnter);
-    fetch('https://git.lucidutil.com/rest/api/latest/inbox/pull-requests?limit=100').then(handleResponse).then(() => {
-        const mutationObserver = new MutationObserver((a) => {
-            for (const prId of unfoundInboxPrs) {
-                markInboxPr(prId);
-            }
-            if (unfoundInboxPrs.size === 0) {
-                mutationObserver.disconnect();
-            }
-        });
+    fetch('https://git.lucidutil.com/rest/api/latest/inbox/pull-requests?limit=100')
+        .then(handleResponse)
+        .then(() => {
+            const mutationObserver = new MutationObserver((a) => {
+                for (const prId of unfoundInboxPrs) {
+                    markInboxPr(prId);
+                }
+                if (unfoundInboxPrs.size === 0) {
+                    mutationObserver.disconnect();
+                }
+            });
 
-        mutationObserver.observe(alreadyOpenDialog, {attributes: true, childList: true, subtree: true});
-        mutationObserver.takeRecords();
-    }).catch((e) => {
-        console.error(e);
-    })
+            mutationObserver.observe(alreadyOpenDialog, {attributes: true, childList: true, subtree: true});
+            mutationObserver.takeRecords();
+        })
+        .catch((e) => {
+            console.error(e);
+        });
 }
 
 async function handleResponse(response) {
@@ -29,13 +32,15 @@ async function handleResponse(response) {
         if (pr.description?.indexOf(userName) >= 0) {
             markInboxPr(pr.id);
         }
-    })
+    });
 }
 
 function markInboxPr(prId) {
-    const pullRequestElement = (alreadyOpenDialog).querySelector(`a[href="/projects/LUCID/repos/main/pull-requests/${prId}/overview"]`)?.parentElement.parentElement.parentElement;
+    const pullRequestElement = alreadyOpenDialog.querySelector(
+        `a[href="/projects/LUCID/repos/main/pull-requests/${prId}/overview"]`,
+    )?.parentElement.parentElement.parentElement;
     if (pullRequestElement) {
-        pullRequestElement.style = "background-color: antiquewhite";
+        pullRequestElement.style = 'background-color: antiquewhite';
         unfoundInboxPrs.delete(prId);
     } else {
         unfoundInboxPrs.add(prId);
