@@ -3,7 +3,7 @@ const primaryPrs = new Set();
 const pendingCommentPrs = new Set();
 
 Promise.all([
-    fetch('https://git.lucidutil.com/rest/ui/latest/dashboard/pull-requests?start=0&limit=100&role=REVIEWER').then(
+    fetch('https://git.lucidutil.com/rest/ui/latest/dashboard/pull-requests?start=0&limit=99&role=REVIEWER').then(
         handleResponse,
     ),
 ])

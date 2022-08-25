@@ -6,7 +6,7 @@ const alreadyOpenDialog = document.querySelector('#inline-dialog-inbox-pull-requ
 
 function onMouseEnter() {
     inboxMenu.removeEventListener('mouseenter', onMouseEnter);
-    fetch('https://git.lucidutil.com/rest/api/latest/inbox/pull-requests?limit=100')
+    fetch('https://git.lucidutil.com/rest/api/latest/inbox/pull-requests?limit=99')
         .then(handleResponse)
         .then(() => {
             const mutationObserver = new MutationObserver((a) => {
