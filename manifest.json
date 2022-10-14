@@ -1,7 +1,7 @@
 {
     "name": "Bitbucket Better",
     "description": "Makes Bitbucket better",
-    "version": "0.4",
+    "version": "0.5",
     "manifest_version": 3,
     "content_scripts": [
         {
@@ -11,8 +11,8 @@
         },
         {
           "matches": ["https://git.lucidutil.com/projects/*/repos/*/pull-requests/*"],
-          "js": ["shared.js", "inbox.js"],
-          "run_at": "document_end"
+          "js": ["shared.js", "inbox.js", "diff.js"],
+          "run_at": "document_idle"
         }
     ]
   }
