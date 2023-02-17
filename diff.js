@@ -11,8 +11,8 @@ const prDataPromise = fetch(`https://git.lucidutil.com/rest/api/latest/projects/
 async function markMissingReviewers(){
     const prData = await prDataPromise;
     Array.from(document.querySelectorAll(`[data-mention-id]:not([data-dn-handled])`))
-        .flatMap(node =>
-            prData.reviewers.find(reviewer => reviewer.user.displayName === node.getAttribute('data-mention-id')) ? [] : node
+        .filter(node =>
+            !prData.reviewers.find(reviewer => reviewer.user.displayName === node.getAttribute('data-mention-id'))
         )
         .forEach((node) => {
             node.setAttribute('data-dn-handled', '')
