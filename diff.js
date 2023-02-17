@@ -1,9 +1,29 @@
 
 const currentFileRegex = /#(.*)$/;
-const currentPrId = window.location.href.match(/pull-requests\/(\d+)/)?.[1];
+const [_, project, repo, currentPrId] = window.location.href.match(/projects\/(\w+)\/repos\/(\w+)\/pull-requests\/(\d+)/);
 const unreadFiles = new Set();
 const mutationObserverForUnreadFiles = new MutationObserver(handleMutations);
 const config = {attributes: true, attributeFilter: ['class']}
+const prDataPromise = fetch(`https://git.lucidutil.com/rest/api/latest/projects/${project}/repos/${repo}/pull-requests/${currentPrId}`).then(
+    res => res.json()
+);
+
+async function markMissingReviewers(){
+    const prData = await prDataPromise;
+    Array.from(document.querySelectorAll(`[data-mention-id]:not([data-dn-handled])`))
+        .flatMap(node =>
+            prData.reviewers.find(reviewer => reviewer.user.displayName === node.getAttribute('data-mention-id')) ? [] : node
+        )
+        .forEach((node) => {
+            node.setAttribute('data-dn-handled', '')
+            node.firstChild.style.backgroundColor = 'rgb(254, 144, 80)';
+            node.firstChild.innerText += ' (not a reviewer)';
+        });
+
+
+}
+markMissingReviewers();
+
 
 if (currentPrId) {
     document.addEventListener('keypress', (event) => {
@@ -19,13 +39,16 @@ if (currentPrId) {
     });
     let activeTimeout = undefined;
     document.addEventListener('mouseup', () => {
-        if (unreadFiles.size && activeTimeout == undefined) {
+        if (activeTimeout == undefined) {
             activeTimeout = setTimeout(() => {
                 requestAnimationFrame(() => {
                     activeTimeout = undefined;
-                    const mutations = mutationObserverForUnreadFiles.takeRecords();
-                    if (mutations.length) {
-                        handleMutations(mutations, mutationObserverForUnreadFiles);
+                    markMissingReviewers();
+                    if (unreadFiles.size) {
+                        const mutations = mutationObserverForUnreadFiles.takeRecords();
+                        if (mutations.length) {
+                            handleMutations(mutations, mutationObserverForUnreadFiles);
+                        }
                     }
                 });
             }, 16);
