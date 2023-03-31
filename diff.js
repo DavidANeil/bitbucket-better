@@ -8,21 +8,30 @@ const prDataPromise = fetch(`https://git.lucidutil.com/rest/api/latest/projects/
     res => res.json()
 );
 
-async function markMissingReviewers(){
+async function markMissingReviewers() {
     const prData = await prDataPromise;
     Array.from(document.querySelectorAll(`[data-mention-id]:not([data-dn-handled])`))
-        .filter(node =>
-            !prData.reviewers.find(reviewer => reviewer.user.displayName === node.getAttribute('data-mention-id'))
-        )
         .forEach((node) => {
             node.setAttribute('data-dn-handled', '')
-            node.firstChild.style.backgroundColor = 'rgb(254, 144, 80)';
-            node.firstChild.innerText += ' (not a reviewer)';
+            if (!prData.reviewers.find(reviewer => reviewer.user.displayName === node.getAttribute('data-mention-id'))) {
+                node.firstChild.style.backgroundColor = 'rgb(254, 144, 80)';
+                node.firstChild.innerText += ' (not a reviewer)';
+            }
         });
-
-
 }
-markMissingReviewers();
+
+
+function markPage() {
+    markMissingReviewers();
+}
+
+if (document.readyState === "loading") {
+    // Loading hasn't finished yet
+    document.addEventListener("DOMContentLoaded", markPage);
+} else {
+    // `DOMContentLoaded` has already fired
+    markPage();
+}
 
 
 if (currentPrId) {
