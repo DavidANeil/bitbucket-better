@@ -3,7 +3,7 @@ const primaryPrs = new Set();
 const pendingCommentPrs = new Set();
 
 Promise.all([
-    fetch('https://git.lucidutil.com/rest/ui/latest/dashboard/pull-requests?start=0&limit=99&role=REVIEWER').then(
+    fetch('https://git.lucidutil.com/rest/ui/latest/dashboard/pull-requests?start=0&limit=99&role=REVIEWER&state=OPEN').then(
         handleResponse,
     ),
 ])
@@ -27,6 +27,7 @@ Promise.all([
 
 async function handleResponse(response) {
     const json = await response.json();
+    setNumPrs(json.size);
     json.values.forEach(async (pr) => {
         if (pr.pullRequest.description?.indexOf(userName) >= 0) {
             primaryPrs.add(pr.pullRequest.id);
@@ -36,6 +37,16 @@ async function handleResponse(response) {
             checkForPendingComments(pr);
         }
     });
+}
+
+function setNumPrs(numberOfPrs) {
+    const element = document.querySelector('.reviewing-pull-requests h3');
+    if (!element) {
+        return;
+    }
+    element.childNodes[2]?.remove();
+    element.insertAdjacentText("beforeend", `(${numberOfPrs})`);
+
 }
 
 async function checkForPendingComments(pr) {
