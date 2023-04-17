@@ -81,7 +81,15 @@ function handleMutations(records, self) {
 function markFileAsUnread(fileNode) {
     const filePath = fileNode.firstChild.href.split('#')[1];
     if (filePath) {
-        window.localStorage.removeItem(`pull-request-LUCID/main/${currentPrId}-user-${userName}-change-history-latest-${filePath}`)
+        // `pull-request-LUCID/main/${currentPrId}-user-${userName}-change-history-${range}-${path}`
+        // ${range} can be 'latest' or a commit range like 'ec7eb2ebdb52739a2875bbeb244220c2ce779d25:bc65d5e3242f5718a2c7974bc0d3f0ee21da7806'
+        const start = `pull-request-LUCID/main/${currentPrId}-user-${userName}-change-history`;
+        const end = `-${filePath}`;
+        for (const key of Object.keys(window.localStorage)) {
+            if (key.endsWith(end) && key.startsWith(start)) {
+                window.localStorage.removeItem(key)
+            }
+        }
     }
     fileNode.classList.remove('file-viewed');
     unreadFiles.add(fileNode);
